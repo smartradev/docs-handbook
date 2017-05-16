@@ -54,3 +54,17 @@
 
 [pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html)
 
+---
+
+# Order
+
+注文系関数
+
+*      order()
+*      order_value()
+*      order_target_value()
+*      order_target()
+*      order_target_percent()
+*      order_percent()
+
+style引数には対応していません。

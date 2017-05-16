@@ -2,13 +2,15 @@
 
 ## 全体の構成 {#overview}
 
-SmartTradeのpython coding におけるサンプルプログラムを例にしてアルゴリズム開発のやり方を説明します。
-まず、サンプルプログラムを見ると図のように青の部分とオレンジ色の部分で構成されているのが分かります。
+SmartTradeのpython coding におけるサンプルプログラムを例にしてアルゴリズム開発方法を説明します。
+サンプルプログラムは、大きく分けると図のように青の部分とオレンジ色の2つの部分で関数されているのが分かります。
 
-<img src="img/fig1.png" style="float: right; width: 500px;">
+<img src="img/fig1.png" style="margin: 10px; float: right; width: 500px;">
 
-青の部分は最初に一度だけ呼び出される定義部分です。オレンジ色は取引の具体的なアクションについて記述された部分です。
-そして、青の中に緑の部分があります。ここがsellかbuyのシグナルを評価する箇所になります。
+双方の関数とも、バックテストエンジンから必要なときに呼び出されます。
+
+青の部分は最初に1度だけ呼び出される初期化部分です。オレンジ色は取引の具体的なアクションについて記述された部分です。
+そして、青の中に緑の部分があります。ここがsellかbuyのシグナルを生成する箇所になります。
 ですので、一般にアルゴリズムを開発してバックテストを走らせる際は次のような動作をする事になります。
 
 1. 青の部分が解釈され始めます。銘柄や使うデータ要素が指定されます。
@@ -25,20 +27,29 @@ SmartTradeのpython coding におけるサンプルプログラムを例にし�
 def initialize(ctx):
 ```
 
-初期化を行う関数。ctxのメソッドは、initialize()の中でのみ呼び出しが可能。
+初期化を行う関数。ctxのメソッドは、initialize()の中でのみ呼び出しが可能です。
 
 ```python
-    ctx.configure(
+    ctx.configure()
 ```
 
-この段落でコンテストの初期値を設定します。
+この段落で、アルゴリズムで利用するデータの宣言を行うことで初期化を行います。
 
 ```python
-        "cn.stock": {
+        target="jp.stock.daily",
 ```
 
-日本株を対象にする指定です。"cn.stock"とすれば上海市場の中国株にも対応します。
+日本の株式市場の日足を対象としたアルゴリズムであることを宣言します。
+中国市場の日足を対象とする場合には、"cn.stock.daily" という指定を行います。
+targetを切り替えることで、バックテストエンジンで扱う通貨設定と、後述するhandle_signals()の呼び出し時刻が適切に調整されどの市場を基準にバックテストを行うかを指定することができます。
 
+```python
+      channels={
+        "jp.stock": {
+```
+
+アルゴリズムで利用する日本株データを宣言しています。
+target="jp.stock.daily"とした場合でも、"cn.stock"と指定することで、中国株のデータを取得することが可能です。
 
 ```python
           "symbols": [
@@ -49,8 +60,7 @@ def initialize(ctx):
           ],
 ```
 
-対象とする証券コードを指定します。
-jp.stock.7201は日産自動車株式会社を意味します。
+対象とする証券コードを指定します。たとえば、jp.stock.7201 は日産自動車株式会社を意味します。
 
 
 ```python
@@ -62,45 +72,27 @@ jp.stock.7201は日産自動車株式会社を意味します。
 ```
 
 シグナルを計算するために必要なデータ種を指定します。
-
-現在使えるデータ種は下記の通りです。
-
-| 識別名 | 内容 | 株式分割調整の有無 |
-|:-----------|:------------:|:------------:|
-|open_price|始値 |     なし     |
-|close_price|終値 |     なし     |
-|high_price|高値 |     なし     |
-|low_price|安値 |     なし     |
-|volume|取引高 |     なし     |
-|txn_volume|売買代金 |     なし     |
-|open_price_adj|始値 |     あり     |
-|close_price_adj|終値 |     あり     |
-|high_price_adj|高値 |     あり     |
-|low_price_adj|低値 |     あり     |
-|volume_adj|取引高|     あり     |
-
+現在使えるデータの種類は [データ・セット](dataset.jp.stock.md)を参照ください。
 
 
 ### 売買シグナル生成部分{#signal-emitter}
 
-
 ```python
     def _mavg_signal(data):
 ```
-売買シグナルを生成する関数です。
 
+売買シグナルを生成する関数の定義です。  
 ここでは全銘柄、指定期間の全日付、全データの入った3次元の配列である「data」そのものを配列のまま演算しています。
+dataは、pandas.Panel オブジェクトで、
 
-dataは、pandas.Panelオブジェクトで、
-
-*      axis-0(items): データ項目(close_price, volume, etc.)　　
-*      axis-1(major): 日付(datetime.datetime型)　
-*      axis-2(minor): 銘柄名(symbol object型)　　
+  * axis-0(items): データ項目(close_price, volume, etc.)　　
+  * axis-1(major): 日付(datetime.datetime型)　
+  * axis-2(minor): 銘柄名(symbol object型)　　
 
 と、定義されています。
 
-
 この例で行くとdataには、
+
 
 2017/5/9の
 
@@ -126,16 +118,24 @@ dataは、pandas.Panelオブジェクトで、
 
 　　　　　　　　　　　以下適用範囲内の日付全て
 
-という形で3次元に格納されています。
+というようなイメージで、3次元的な形式で格納されています。
 
 
 ```python
         m25 = data["close_price_adj"].fillna(method='pad').rolling(window=25, center=False).mean()
 ```
 
-ここではデータのうち「close_price_adj（終値）」を対象として指定しています。
-ですので、全銘柄、指定期間の全日付の入った終値の2次元の配列そのものを配列のまま演算することになります。
+ここでは、データのうち「close_price_adj（株式分割調整後終値）」の25日移動平均を計算しています。
+1行で記述していますが、式を分割して說明します。
 
+まず、
+
+```python
+data["close_price_adj"]
+```
+
+ですが、3次元構造から、itemを指定することで2次元のpandas.DataFrameを取得しています。
+取得されるデータは、次のようなイメージで、全銘柄、全日付のclose_price_adjが入った行列が返されます。
 
 || 2017/5/1 | 2017/5/2 | 2017/5/3 |…|
 |:-----------:|:------------:|:------------:|:------------:|:------------:|
@@ -146,28 +146,27 @@ dataは、pandas.Panelオブジェクトで、
 
 
 ```python
-fillna(method='pad')
+fillna(method='ffill')
 ```
+こちらは、欠損データの補完を行っています。
+データにはたまに欠損があります。これは例えばストップ安で値がつかなかったりするなど、様々な要因で終値がNaNとなることがあります。
+NaNが計算式に含まれると、式の結果は自動的にNaNとなってしまうため、移動平均の計算に支障が発生する可能性があります。
 
-データにはたまに欠損があります。これは例えばストップ安で値がつかなかったりするなどの要因で終値がNaNになります。
-そうするとデータを期待していたコードに不具合が出てしまいます。
-そこで、このメソッドを使うとNaNがあった場合自動的に補完をしてくれるようになります。
-また、β版ではデータの完璧さは保証されておりませんのでその点ご了承ください。
-
+そこで、このメソッドを使うとNaNがあった場合に、さまざまな無方法で自動的に補完をしてくれるようになります。
+また、β版ではデータの完全さは保証されておりませんのでその点ご了承ください。
 
 ```python
 rolling(window=25, center=False).mean()
 ```
 
-ここでは25個の値を連続して取得し、さらにその平均を取るという指定をしています。
+ここでは25個の値を連続して取得し、さらにその平均を取るというpandas.Dataframeのメソッドを呼び出しています。
 
-rollingについてはこちらを
+rolling()についてはこちらを
 [pandas.DataFrame.rolling ](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.rolling.html)
 
-meanについてはこちらを
+mean()についてはこちらを参照ください。
 [pandas.DataFrame.mean](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.mean.html#pandas.DataFrame.mean)
 
-参照してください。
 
 最終的にm25という2次元配列に次のように終値の25日移動平均値が各銘柄、各日付において格納される結果となります。
 
@@ -178,7 +177,6 @@ meanについてはこちらを
 |jp.stock.9202|25日移動平均値|25日移動平均値|25日移動平均値|…|
 |jp.stock.7203|25日移動平均値|25日移動平均値|25日移動平均値|…|
 
-
 ```python
         m75 = data["close_price_adj"].fillna(method='pad').rolling(window=75, center=False).mean()
 ```
@@ -188,23 +186,39 @@ meanについてはこちらを
 ```python
         ratio = m25 / m75
 ```
-2次元配列であるm25を2次元配列であるm75で割ります。
+2次元配列であるm25を、同様のサイズの2次元配列であるm75で割ります。
 結果は25日移動平均値を75日移動平均値で割った値の2次元配列がratioに格納されます。
-
 
 ```python
         buy_sig = ratio[ratio > 1.05]
 ```
-ここではまず、ratio > 1.05　が評価されます。つまり25日移動平均値を75日移動平均値で割った値が1.05を超えていた場合、TRUE、そうでない場合FALSEの
+ここではまず、ratio > 1.05　が評価されます。つまり25日移動平均値を75日移動平均値で割った値が1.05を超えていた場合、True、そうでない場合Falseの
 論理値の2次元配列が出来上がります。
+
+|| 2017/5/1 | 2017/5/2 | 2017/5/3 |…|
+|:-----------:|:------------:|:------------:|:------------:|:------------:|
+|jp.stock.7201|True|False|True|…|
+|jp.stock.9201|False|False|True|…|
+|jp.stock.9202|True|False|True|…|
+|jp.stock.7203|True|False|True|…|
+
 次にratio[論理値2次元配列]がbuy_sigという2次元配列に格納されるので、結果的に25日移動平均値を75日移動平均値で割った値が1.05を超えていた
-要素だけがbuy_sigに入り、それ以外はNaNになります。
+要素だけがbuy_sigに入り、それ以外は None になります。
+
+
+|| 2017/5/1 | 2017/5/2 | 2017/5/3 |…|
+|:-----------:|:------------:|:------------:|:------------:|:------------:|
+|jp.stock.7201|値|None|値|…|
+|jp.stock.9201|None|None|値|…|
+|jp.stock.9202|値|None|値|…|
+|jp.stock.7203|値|None|値|…|
+
 
 ```python
         sell_sig = ratio[ratio < 0.95]
 ```
-同様に25日移動平均値を75日移動平均値で割った値が0.95より小さい場合、sell_sig配列に値を格納します。
 
+同様に25日移動平均値を75日移動平均値で割った値が0.95より小さい場合、sell_sig配列に値を格納します。
 
 
 ```python
@@ -229,7 +243,6 @@ meanについてはこちらを
 の色が固定的に利用されます。
 
 
-
 ```python
     ctx.regist_signal("mavg_signal", _mavg_signal)
 ```
@@ -239,16 +252,14 @@ meanについてはこちらを
 ## 日ごとの処理部分の記述{#handle-signals}
 
 続いて、日ごとに呼び出される関数の説明です。これは例えば100日分のデータのバックテストをやる場合、100回呼び出される事になります。
-ここで株をどの位売買するかの決定や損きり、利益確定売りを指定します。
+ここで株をどの位売買するかの決定や損切り、利益確定売りを指定します。
 
 
 ```python
 def handle_signals(ctx, date, current):
 ```
 
-
-dateはdatetime.datetime型 currentは、dateの当日のデータ、シグナルを含んだ pandas.DataFrameオブジェクト。
-例えば以下のような構造を持つ。
+dateはdatetime.datetime型 currentは、dateの当日のデータとシグナルを含んだ pandas.DataFrame オブジェクトで、以下のような構造になります。
 
 || close_price | open_price | sig1 |sig2(regist_signalで登録したシグナル)|
 |:-----------:|:------------:|:------------:|:------------:|:------------:|
@@ -258,7 +269,7 @@ dateはdatetime.datetime型 currentは、dateの当日のデータ、シグナ�
 |jp.stock.7203|値|値|値|値|
 
 
-たとえば、current["close_price"] とすると、configure()で指定した銘柄のclose_priceのpandas.Seriesオブジェクトを返す。
+たとえば、current["close_price"] とすると、configure()で指定した銘柄のclose_priceのpandas.Seriesオブジェクトを返します。
 
 ctxは以下のメソッドを持つ(initialize()で渡されるctxとは別のオブジェクトであることに注意)
 
@@ -305,24 +316,12 @@ ctxは以下のメソッドを持つ(initialize()で渡されるctxとは別の�
 *    code()    : code値を返す(ex. 9984)
 *    unit()    : 売買単位を返す(ex. 100)
 
-注文系関数
-
-*      order()
-*      order_value()
-*      order_target_value()
-*      order_target()
-*      order_target_percent()
-*      order_percent()
-
-style引数には対応していません。
-
-
 ```python
           sec.order(-val["amount"], comment="損切り(%f)" % returns)
           done_syms.add(sym)
 ```
-売却処理を行い、当該の日ではシグナルでの売買をしないようフラグを立てます。
 
+売却処理を行い、当該の日ではシグナルでの売買をしないようフラグを立てます。
 
 
 ```python
