@@ -1,12 +1,12 @@
-# DataFrameの欠損値の補完
+# DataFrame的缺损值的补全
 
 ```python
 cpa = data["close_price_adj"].fillna(method='pad').rolling(window=25, center=False).mean()
 ```
 
-欠損値は、NaN(Not a Number)として設定されています。
-計算式の一部にNaNが含まれると、計算結果も自動的にNaNになってしまいます。
-これは、たとえば移動平均を算出しようとした時に、途中の1日だけ欠損していた場合は、以降すべての計算に失敗してしまうことになります。
-欠損値をfillすることで、欠損していた該当日以降の移動平均も算出することが可能になります。
+缺损部分的数值设定为NaN(Not a Number)。
+计算式里头如果包含NaN，计算结果也将自动变成NaN。
+比如计算移动平均时，如果中间有一天的数值缺损，就意味着之后的所有计算将失败。
+所以通过fill缺损值，可以顺利计算出缺损当天以后的移动平均。
 
 http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.fillna.html#pandas.DataFrame.fillna
