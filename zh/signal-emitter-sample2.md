@@ -1,11 +1,11 @@
-# TA-libの呼び出し方サンプル{#signal-emitter-sample2}
+# 调出TA-lib的样本{#signal-emitter-sample2}
 
-TA-libの呼び方。
+TA-lib的调出方法。
 
-op = p["open_price_adj"] で pandas.DataFrameにして、
-op[sym] で、さらに pandas.Series に絞り込んで、
-op[sym].values で、numpy.ndarray にしている。
-TA-libは、引数としてndarrayをとるので、わざわざこんなことをしている。
+通过op = p["open_price_adj"] 转换为 pandas.DataFrame，
+再通过op[sym] 转换成 pandas.Series。
+之后通过op[sym].values转换成numpy.ndarray。
+因为TA-lib作为引述只接受ndarray，所以需要上述转换过程。
 
 ```python
 
@@ -24,12 +24,12 @@ TA-libは、引数としてndarrayをとるので、わざわざこんなこと�
 
       #ctx.logger.debug(val)
 
-      # numpy.ndarrayのdictから、pandas.DataFrameを再構築する。
+      # 从numpy.ndarray的dict，重新构筑pandas.DataFrame。
       df = pd.DataFrame(data=result, index=op.index, columns=op.columns)
 
       return {
-        "CDLBELTHOLD_LONG:sig": (df > 0),   # df>0のマスがTrueのDataFrame
-        "CDLBELTHOLD_SHORT:sig": (df < 0),  # df<0のマスがTrueのDataFrame
-        "CDLBELTHOLD": df                   # 生の値のDataFrame
+        "CDLBELTHOLD_LONG:sig": (df > 0),   # df>0的部分为True的DataFrame
+        "CDLBELTHOLD_SHORT:sig": (df < 0),  # df<0的部分为True的DataFrame
+        "CDLBELTHOLD": df                   # 元数据的DataFrame
       }
 ```
