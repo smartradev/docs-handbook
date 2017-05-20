@@ -1,6 +1,6 @@
 # TinyLogging{#TinyLogging}
 
-  Pythonのlogging APIと同じ仕様で、以下のメソッドがある。
+  和Python的logging API一样的构造，拥有以下method。
 
 ```python
     def debug()
@@ -10,37 +10,37 @@
     def critical()
 ```
 
-  それぞれのログレベルで、コンソールにログメッセージが出力される。
+  在console上显示各个log level的log message。
 
 ---
 
 # Portfolio{#Portfolio}
 
-  ポートフォリオを管理するオブジェクト
+  管理资产配置的object
 
 ## portfolio.positions : dict
-   保有している各銘柄にす関する情報を格納しているdict
-   keyはsymbolで、次のような値をもつ
+   包含所持有的各股份信息的dict
+   key是symbol，拥有以下值
 
 ```python
      {
-                "amount": asset.amount,                          # 保有株数
-                "total_buy_price": asset.total_buy_price,        # 今までの総購入額
-                "total_sell_price": asset.total_sell_price,      # 今までの総売却額
-                "buy_price": bp,                                 # 現在のポジションの総購入額(amountが0になると0にリセットされる)
-                "sell_price": sp,                                # 現在のポジションの総売却額(amountが0になると0にリセットされる)
-                "value": value,                                  # 現在の評価額
-                "position_ratio": position_ratio,                # 保有銘柄の中での割合,
-                "portfolio_ratio": portfolio_ratio,              # 資産全体での割合
-                "pnl": value - (bp - sp),                        # 損益額
-                "returns": returns                               # 損益率
+                "amount": asset.amount,                          # 持股数
+                "total_buy_price": asset.total_buy_price,        # 迄今为止的总购买额
+                "total_sell_price": asset.total_sell_price,      # 迄今为止的总卖出额
+                "buy_price": bp,                                 # 当前position的总购入额(amount变成0的话自动reset到0)
+                "sell_price": sp,                                # 当前position的总卖出额(amount变成0的话自动reset到0)
+                "value": value,                                  # 当前市值
+                "position_ratio": position_ratio,                # 当前所持有股票中的比率
+                "portfolio_ratio": portfolio_ratio,              # 全资产中占的比率
+                "pnl": value - (bp - sp),                        # 收益额
+                "returns": returns                               # 收益率
 
      }
 ```
 
 ---
 
-# pandas情報{#pandas}
+# pandas信息{#pandas}
 
 ## pandas.Panel(3次元)
 
