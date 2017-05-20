@@ -32,8 +32,6 @@ def initialize(ctx):
 ```python
     ctx.configure()
 ```
-
-この段落で、アルゴリズムで利用するデータの宣言を行うことで初期化を行います。
 在这里，通过指定策略组合所用的数据实现初始化
 
 ```python
