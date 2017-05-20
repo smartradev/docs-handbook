@@ -1,4 +1,4 @@
-# 生成信号函数样本1{#signal-emitter-sample1}
+# 信号生成函数样本1{#signal-emitter-sample1}
 
 VisualCoding提供的功能条件里被调出的函数。同时参照VisualCoding界面会比较容易理解。
 为了实现有效日期数，使用了DataFrame.shift()。shift()，常用于参照过去的值。
