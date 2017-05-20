@@ -1,7 +1,7 @@
-# シグナル生成関数サンプル1{#signal-emitter-sample1}
+# 信号生成函数的样本1{#signal-emitter-sample1}
 
-VisualCodingで提供されているコンポーネントから呼び出される関数。VisualCodingの画面を見ながら対応を見るとわかりやすい。
-有効日数を実現するために、DataFrame.shift()を使っている。shift()は、過去の値を参照するのによく使う。
+VisualCoding提供的功能条件里被调出的函数。同时参照VisualCoding界面会比较容易理解。
+为了实现有效日期数，使用了DataFrame.shift()。shift()，常用于参照过去的值。
 
 ```python
 
@@ -18,7 +18,7 @@ VisualCodingで提供されているコンポーネントから呼び出され�
       df_b = data["close_price_adj"].rolling(window=b, center=False).mean()
 
       df_c = df_a / df_b
-      df_d = op(df_c).astype(int)         # 値を1,0にする
+      df_d = op(df_c).astype(int)         # 将值设定为1,0
 
       sum = pd.DataFrame(data=0,index=df_d.index, columns=df_d.columns)
       for i in range(vp+1):
@@ -26,10 +26,10 @@ VisualCodingで提供されているコンポーネントから呼び出され�
 
       return {
         # for debug
-        "df_d": df_d,                     # 当日の値
-        "df_d_1": df_d.shift(1),          # 1日前の値
-        "df_d_2": df_d.shift(2),          # 2日前野値
-        "sum": sum,                       # (当日の値 + 1日前の値 + 2日前の値)
+        "df_d": df_d,                     # 当天值
+        "df_d_1": df_d.shift(1),          # 1天前的值
+        "df_d_2": df_d.shift(2),          # 2天前的值
+        "sum": sum,                       # (当天值 + 1天前的值 + 2天前的值)
 
         # signal...
         "vc_sma:sig": (df_d > 0) & (sum > 0) & (sum <= vp)
