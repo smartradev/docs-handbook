@@ -226,10 +226,10 @@ ratio[理论值2次元配列]将被纳入2次元配列buy_sig里头，所以只�
 将上述说明过的函数「_mavg_signal」进行登陆并使用。
 
 
-## 每天处理部分的记述{#handle-signals}
+## 逐日处理部分的记述{#handle-signals}
 
-接下来，说明每天被调出的函数部分。続いて、日ごとに呼び出される関数の説明です。これは例えば100日分のデータのバックテストをやる場合、100回呼び出される事になります。
-ここで株をどの位売買するかの決定や損きり、利益確定売りを指定します。
+接下来，说明逐日被调出的函数部分。比如做100天份的数据回测时，将会被调出100次。
+在这里指定买卖多少股票，或止损以及确定盈利等。
 
 
 ```python
@@ -237,65 +237,65 @@ def handle_signals(ctx, date, current):
 ```
 
 
-dateはdatetime.datetime型 currentは、dateの当日のデータ、シグナルを含んだ pandas.DataFrameオブジェクト。
-例えば以下のような構造を持つ。
+date是datetime.datetime型。current是包含date的当天数据以及信号的pandas.DataFrame object。
+比如有以下构造。
 
-|| close_price | open_price | sig1 |sig2(regist_signalで登録したシグナル)|
+|| close_price | open_price | sig1 |sig2(在regist_signal登陆的信号)|
 |:-----------:|:------------:|:------------:|:------------:|:------------:|
-|jp.stock.7201|値|値|値|値|
-|jp.stock.9201|値|値|値|値|
-|jp.stock.9202|値|値|値|値|
-|jp.stock.7203|値|値|値|値|
+|jp.stock.7201|值|值|值|值|
+|jp.stock.9201|值|值|值|值|
+|jp.stock.9202|值|值|值|值|
+|jp.stock.7203|值|值|值|值|
 
 
-たとえば、current["close_price"] とすると、configure()で指定した銘柄のclose_priceのpandas.Seriesオブジェクトを返す。
+比如，current["close_price"] 的话，将返回configure()所指定股票的close_price的pandas.Series object。
 
-ctxは以下のメソッドを持つ(initialize()で渡されるctxとは別のオブジェクトであることに注意)
+ctx拥有以下method(是与initialize()传递的ctx不同的object，请注意)
 
 <dl>
   <dt>ctx.getSecurity(sym)</dt>
-  <dd>symに相当するSecurityオブジェクトを返す</dd>
+  <dd>返回相当于sym的Security object</dd>
 
   <dt>ctx.portfolio</dt>
-  <dd>ポートフォリオを管理するPortfolioオブジェクト</dd>
+  <dd>管理资产配置的Portfolio object</dd>
 
   <dt>ctx.localStorage</dt>
-  <dd>次回handle_signals()が呼び出された時に保存しておきたいデータを保存しておく領域。
-ここに設定した値は、次回移行も設定されたままでhandle_signals()が呼び出されることが保証される。</dd>
+  <dd>下次handle_signals()被调用时，保存数据用的领域。
+在这里设定的值，在今后handle_signals()被调用时也会收到保障</dd>
 </dl>
 
 
 ```python
     done_syms = set([])
 ```
-当該の日にシグナルによる売買と「損切り、利益確定売り」が被らないようにフラグを用意します。
+为防止根据当天信号进行的买卖交易和「止损交易，确定盈利交易」不重复，而准备区别用标签。
 
 ```python
     for (sym,val) in ctx.portfolio.positions.items():
 ```
-当該の日にポジションを持っている銘柄があった場合、そこの部分の処理をします。
+如果当天有持有的股票，进行那个部分的处理。
 
 ```python
         returns = val["returns"]
 ```
-ポジションの時価との差異を取ります。
+获取与持仓的市场价格之间的差异
 
 ```python
         if returns < -0.03:
 ```
-時価が取得時より3%下落下かどうかを評価します。
+判断市场价格是否低于获取价格3%以下。
 
 ```python
           sec = ctx.getSecurity(sym)
 ```
-当該銘柄のSecurityオブジェクトを取得。
+获取改股票的Security object。
 
-なお、Securityオブジェクトには次のメソッドが有ります。
+同时，Security object拥有以下的method。
 
-*    code()    : code値を返す(ex. 9984)
-*    unit()    : 売買単位を返す(ex. 100)
+*    code()    : 返回code值(ex. 9984)
+*    unit()    : 返回买卖单位(ex. 100)
 
-注文系関数
+下单相关的函数
 
 *      order()
 *      order_value()
@@ -304,43 +304,43 @@ ctxは以下のメソッドを持つ(initialize()で渡されるctxとは別の�
 *      order_target_percent()
 *      order_percent()
 
-style引数には対応していません。
+不对应style引数。
 
 
 ```python
-          sec.order(-val["amount"], comment="損切り(%f)" % returns)
+          sec.order(-val["amount"], comment="止损卖出(%f)" % returns)
           done_syms.add(sym)
 ```
-売却処理を行い、当該の日ではシグナルでの売買をしないようフラグを立てます。
+进行卖出处理，并标注不根据当天的信号进行买卖。
 
 
 
 ```python
         elif returns > 0.05:
           sec = ctx.getSecurity(sym)
-          sec.order(-val["amount"], comment="利益確定売(%f)" % returns)
+          sec.order(-val["amount"], comment="为确定盈利卖出(%f)" % returns)
           done_syms.add(sym)
 ```
-同様に5%以上値上がりしていたら利益確定売りをしてフラグを立てます。
+同样，升值5%以上，卖出确定盈利并标注。
 
 ```python
     buy = current["buy:sig"].dropna()
 ```
-buyシグナルの項目のpandas.Seriesオブジェクトを取得します。
+获取buy信号的pandas.Series object。
 
 ```python
     for (sym,val) in buy.items():
         if sym in done_syms:
           continue
 ```
-buyシグナルが設定された所を実行します。ただし、損切りか利益確定売りをしたフラグが立っていたら無視します。
+执行buy信号所设定的部分。但无视标注着止损或确定盈利标签的部分。
 
 ```python
         sec = ctx.getSecurity(sym)
         sec.order(sec.unit() * 1, comment="SIGNAL BUY")
         pass
 ```
-当該の銘柄の発注を行います。
+针对改股票进行下单。
 
 ```python
     sell = current["sell:sig"].dropna()
@@ -353,6 +353,6 @@ buyシグナルが設定された所を実行します。ただし、損切り�
         #ctx.logger.debug("SELL: %s,  %f" % (sec.code(), val))
         pass
 ```
-同様に売り注文も実行します。
+同样执行卖出订单。
 
-以上、サンプルプログラムの解説でした。
+以上是样本程序的说明。
