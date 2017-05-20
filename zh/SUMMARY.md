@@ -1,4 +1,4 @@
-* [策略组合开发入门](README.md)
+* [开发策略组合入门](README.md)
   * [整体构造(README.md#overview)
   * [程序内容的说明](README.md#code-top)
       * [初始化](README.md#initialize)
