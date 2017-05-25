@@ -5,7 +5,7 @@
       * [生成买卖信号的部分](README.md#signal-emitter)
   * [逐日处理部分的记述](README.md#handle-signals)
 * [参照](api.md)
-  * [利用可能な外部ライブラリ](libs.md)
+  * [可以使用的外部函数包](libs.md)
   * [TinyLogging](api.md#TinyLogging)
   * [Portfolio](api.md#Portfolio)
   * [pandas](api.md#pandas)
