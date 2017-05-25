@@ -5,6 +5,7 @@
       * [売買シグナル生成部分](README.md#signal-emitter)
   * [日ごとの処理部分の記述](README.md#handle-signals)
 * [リファレンス](api.md)
+  * [利用可能な外部ライブラリ](libs.md)
   * [TinyLogging](api.md#TinyLogging)
   * [Portfolio](api.md#Portfolio)
   * [pandas](api.md#pandas)
