@@ -20,7 +20,7 @@
 
 ## portfolio.positions : dict
    包含所持有的各股份信息的dict
-   key是symbol，拥有以下值
+   以股票代码为key，拥有以下值
 
 ```python
      {
@@ -42,15 +42,15 @@
 
 # pandas信息{#pandas}
 
-## pandas.Panel(3次元)
+## pandas.Panel(三维)
 
 [pandas.Panel](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Panel.html)
 
-## pandas.DataFrame(2次元)
+## pandas.DataFrame(二维)
 
 [pandas.DataFrame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html)
 
-## pandas.Series(1次元)
+## pandas.Series(一维)
 
 [pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html)
 
