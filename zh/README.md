@@ -4,15 +4,19 @@
 
 ## 整体构造  {#overview}
 
-每一个策略都有两大主要模块构成，初始化定义以及交易操作制定，分别为图中所示的蓝色与橙色部分。引擎会依次调用两大模块完成回测。
+每一个策略都由两大主要模块构成，初始化定义（initialize）以及交易操作执行（handle_signals），分别为图中所示的蓝色与橙色部分。回测引擎会依次调用两大模块完成回测。
 
 <img src="img/fig1.png" style="margin: 10px; float: right; width: 500px;">
 
 蓝色模块：初始化定义，在回测初始阶段被调用。该模块中，用户应定义：
 （1）该策略所适用的股票池（通过股票的代码）
+
 （2）所使用的股票信息（价格，交易量等）
+
 （3）买入卖出的交易条件（在图中的绿色部分标出）
-橙色模块：交易操作制定。在该模块中，用户应指定具体的交易操作：当初始化定义中所指定的股票池满足交易信号指定的条件时，将执行的具体买入或卖出操作。往往包括买入卖出数量、止损止盈标准等。
+
+橙色模块：交易操作执行。在该模块中，用户应指定具体的交易操作：当初始化定义中所指定的股票池满足交易信号指定的条件时，将执行的具体买入或卖出操作。往往包括买入卖出数量、止损止盈标准等。
+
 回测时，引擎会根据定义的股票池以及买卖条件确定买卖发生的日期，进而在相应的时间执行策略指定的交易操作，从而计算出策略的收益情况。
 
 <br style="clear: right">
@@ -24,29 +28,25 @@
 ```python
 def initialize(ctx):
 ```
-
-初始化函数。ctx的method只能在initialize()里头才可以被调出。
+为初始化函数。其中，请参照[ctx](https://pypi.python.org/pypi/ctx)了解更多信息。
 
 ```python
     ctx.configure()
 ```
-在这里，通过指定策略组合所用的数据实现初始化
+在configure函数内，用户可定义策略所适用的股票池信息。
 
 ```python
         target="jp.stock.daily",
 ```
+target用来指定策略所适用的股票市场（中国-cn或者日本-jp）以及交易频率（daily指代日数据）。如果.daily缺省，则默认为日交易数据。
 
-指定是以日本股票的日单位数据为目标对象的策略组合。
-如果想以中国市场的日单位数据为目标对象，需指定"cn.stock.daily"。
-通过切换目标对象，可以指定回测引擎所运行的货币设定，调整handle_signals()被调出的时间并指定以哪个市场为基准做回测。
+后面的交易操作执行模块，handle_signals()，将按照此处指定的市场与频率执行相应的交易操作。
 
 ```python
       channels={
         "jp.stock": {
 ```
-
-指定策略组合里使用的日本股票数据。
-即使设定target="jp.stock.daily"，通过指定"cn.stock"可以获取中国股票的数据。
+在channels中定义策略适用的股票市场。如果与target中定义的股票市场不一致，回测程序将以此处的定义为准。
 
 ```python
           "symbols": [
@@ -56,9 +56,7 @@ def initialize(ctx):
             "jp.stock.7203"
           ],
 ```
-
-指定目标证券的代码。jp.stock.7201意味着日产汽车株式会社。
-
+在symbols中指定具体的股票代码，作为回测的股票池。
 
 ```python
           "columns": [
@@ -68,28 +66,28 @@ def initialize(ctx):
           ]
 ```
 
-指定计算信号所需的数据种类。
+在columns中指定所使用的股票参数。
 现阶段能使用的数据种类情参照[数据包](dataset.jp.stock.md)。
 
 
-### 生成买卖信号的部分{#signal-emitter}
+### 定义交易信号{#signal-emitter}
 
 ```python
     def _mavg_signal(data):
 ```
 
-是生成买卖信号函数的定义。
-「data」是由所有目标股票，所有指定日期，所有数据组成的3次元配列。在这里是将「data」以配列的形式直接进行运算。
-data是pandas.Panel的object，其定义如下。
+在此_mavg_signal()函数中定义买入、卖出信号。
+
+输入变量data的数据类型为三维数组，由[pandas.Panel](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Panel.html)定义，根据前面channels定义的股票池信息所自动生成，其各维数据信息如下：
 
   * axis-0(items): 数据部分(close_price, volume, etc.)　　　
   * axis-1(major): 日期(datetime.datetime型)　
   * axis-2(minor): 股票名(symbol object型)　　
 
-以上述代码为例的话，data里头包含以下三次元形式的数据。
+在该例中，data数据储存情况如下：
 
 
-2017/5/9の
+2017/05/09
 
 || close_price_adj | volume_adj | txn_volume |
 |:-----------:|:------------:|:------------:|:------------:|
@@ -98,7 +96,7 @@ data是pandas.Panel的object，其定义如下。
 |jp.stock.9202|值|值|值|
 |jp.stock.7203|值|值|值|
 
-2017/5/10の
+2017/05/10
 
 || close_price_adj | volume_adj | txn_volume |
 |:-----------:|:------------:|:------------:|:------------:|
@@ -111,17 +109,14 @@ data是pandas.Panel的object，其定义如下。
 
 　　　　　　　　　　　　　　　　　　：
 　　　　　　　　　　　　　　　　　　：
-
-　　　　　　　　　　　适用范围内的所有日期份
+　　　　　　　　　　　　　　　　　　：
 
 
 
 ```python
         m25 = data["close_price_adj"].fillna(method='pad').rolling(window=25, center=False).mean()
 ```
-
-在这里计算「close_price_adj（调整股份拆细后的收盘价）」的25天移动平均。
-以下将式子分开来进行说明。
+该式计算股票池中所有股票“close_price_adj”的25日移动平均值并保存在变量m25中。
 
 首先
 
@@ -129,8 +124,8 @@ data是pandas.Panel的object，其定义如下。
 data["close_price_adj"]
 ```
 
-这部分是通过指定3次元构造中的item，获取2次元的pandas.DataFrame。
-取得的数据，返回各个目标股票在各个日期的close_price_adj配列（如下）。
+读取三维数组data中的“close_price_adj”，生成了一个二维数组[pandas.DataFrame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html)。
+储存形式如下：
 
 || 2017/5/1 | 2017/5/2 | 2017/5/3 |…|
 |:-----------:|:------------:|:------------:|:------------:|:------------:|
@@ -143,18 +138,12 @@ data["close_price_adj"]
 ```python
 fillna(method='ffill')
 ```
-这里是在做缺损数据的补全。
-数据偶尔会有一些缺损。比如因为跌停确定不了收盘价等各种原因，收盘价数据是NaN。
-如果计算式里包含NaN，计算式结果也会自动变成NaN。所以很有可能计算移动平均时会发生问题。
-
-这种情况下通过使用method，可以自动补全缺损数据。
-同时，β版不能完全保障数据的完整度，请谅解。
+因为各种原因，历史数据会存在缺失，这些缺失的数据点数组中以NaN的形式储存。使用fillna函数，可以将所有NaN数据以method定义的方式进行补全。
 
 ```python
 rolling(window=25, center=False).mean()
 ```
-
-在这里是在调出，连续读取25个数据并算出其平均的pandas.Dataframe的method。
+该代码使用了pandas.DataFrame的函数计算数据的25日移动平均线。
 
 关于rolling请参照
 [pandas.DataFrame.rolling ](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.rolling.html)
@@ -163,7 +152,7 @@ rolling(window=25, center=False).mean()
 [pandas.DataFrame.mean](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.mean.html#pandas.DataFrame.mean)
 
 
-最终在2次元配列m25里会包含各个目标股票在各个日期的25天移动平均值（如下）。
+最终生成的变量m25是一个二维pandas.DataFrame数组，其部分示例如下：
 
 || 2017/5/1 | 2017/5/2 | 2017/5/3 |…|
 |:-----------:|:------------:|:------------:|:------------:|:------------:|
@@ -176,43 +165,31 @@ rolling(window=25, center=False).mean()
         m75 = data["close_price_adj"].fillna(method='pad').rolling(window=75, center=False).mean()
 ```
 
-同样将收盘价的75天移动平均值的配列纳入m75。
+与m25的计算方式相同，该式计算75日移动平均值。
 
 ```python
         ratio = m25 / m75
 ```
-将2次元配列m25除以同等大小的2次元配列m75。
-25天移动平均值除以75天移动平均值的计算结果以2次元配列的形式纳入ratio。
-
+计算m25与m75的元素商，既在相同时间点上的数据进行做商，生成二维pandas.DataFrame数组ratio。
 
 ```python
         buy_sig = ratio[ratio > 1.05]
 ```
-在这里首先判断 ratio > 1.05 。生成25天移动平均值除以75天移动平均值超过1.05时为TRUE，其余为FALSE的理论值2次元配列。
+将ratio中满足条件“>1.05”的元素保存，并将不满足条件的元素值设为NaN，结果存在二维数组buy_sig中，部分示例如下：
 
 || 2017/5/1 | 2017/5/2 | 2017/5/3 |…|
 |:-----------:|:------------:|:------------:|:------------:|:------------:|
-|jp.stock.7201|True|False|True|…|
-|jp.stock.9201|False|False|True|…|
-|jp.stock.9202|True|False|True|…|
-|jp.stock.7203|True|False|True|…|
-
-ratio[理论值2次元配列]会被纳入2次元配列buy_sig里头，所以只有25天移动平均值除以75天移动平均值超过1.05时才有元素纳入buy_sig，其余为None。
-
-
-|| 2017/5/1 | 2017/5/2 | 2017/5/3 |…|
-|:-----------:|:------------:|:------------:|:------------:|:------------:|
-|jp.stock.7201|值|None|值|…|
-|jp.stock.9201|None|None|值|…|
-|jp.stock.9202|值|None|值|…|
-|jp.stock.7203|值|None|值|…|
+|jp.stock.7201|值|NaN|值|…|
+|jp.stock.9201|NaN|NaN|值|…|
+|jp.stock.9202|值|NaN|值|…|
+|jp.stock.7203|值|NaN|值|…|
 
 
 ```python
         sell_sig = ratio[ratio < 0.95]
 ```
 
-同样25天移动平均值除以75天移动平均值低于0.95时，纳入sell_sig配列里。
+将ratio中满足条件小于0.95的元素保存，并将不满足条件的元素值设为NaN，结果存在二维数组sell_sig中，
 
 
 ```python
@@ -224,98 +201,95 @@ ratio[理论值2次元配列]会被纳入2次元配列buy_sig里头，所以只�
         }
 ```
 
-定义之后使用的配列。同时定义chart上所显示的名称。
-比如在chart下面以"buy:sig"的名称显示「buy_sig」配列。
+函数所返回的变量：m25，m75,buy_sig,sell_sig，将在后面的交易操作执行模块中使用。
 
-同时作为suffix，如sig被使用，将被特定，在chart上可以形成矩阵确认范围。
-这个时候，
+同时定义了各变量在回测结果显示中的名称，分别为：mavg_25:price，mavg_75:price，buy:sig，sell:sig。
 
-* key里包含buy,pos时为粉红色
-* key里包含sell,neg时为浅蓝色
-
-的颜色将被固定利用。
-
+注：在回测结果显示图表中，buy:sig命名的数据区域将自动显示为粉红色，sell：sig命名的数据区域将自动显示为浅蓝色。
 
 ```python
     ctx.regist_signal("mavg_signal", _mavg_signal)
 ```
-将上述说明过的函数「_mavg_signal」进行登陆并使用。
 
+最后，将新定义的「_mavg_signal」函数在回测引擎中注册供后续使用。
 
-## 逐日处理部分的记述{#handle-signals}
+阅读更多关于[pandas](http://pandas.pydata.org/pandas-docs/stable/index.html)。
 
-接下来，说明逐日被调出的函数部分。比如做100天份的数据回测时，将会被调出100次。
-在这里指定买卖多少股票，或为止损以及确定盈利而卖出等。
+## 交易操作执行{#handle-signals}
 
+用户在该模块中应定义具体的买卖操作，比如买卖数量，止损止盈条件等。
+
+handle_signals函数将按照初始化定义中指定的交易频率被调用。比如，如果target中定义为daily，则handle_signals将逐日被调用并按照用户定义的操作进行买卖交易。
 
 ```python
 def handle_signals(ctx, date, current):
 ```
 
-date是datetime.datetime型。current是包含date的当天数据以及信号的pandas.DataFrame object。比如有以下构造。
+date是handle_signals当前处理的时间点，类型为datetime.datetime。
 
-|| close_price | open_price | sig1 |sig2(在regist_signal登陆的信号)|
+current储存了时间点date时的股票池数据以及交易信号函数中计算的结果，类型为二维pandas.DataFrame数组。比如，current["close_price"] 返回的是在configure()中指定股票池中各股票的close_price，类型为一维pandas.sSeries数组。
+
+current的部分示例如下：
+
+|| close_price | open_price | sig1 |sig2|
 |:-----------:|:------------:|:------------:|:------------:|:------------:|
 |jp.stock.7201|值|值|值|值|
 |jp.stock.9201|值|值|值|值|
 |jp.stock.9202|值|值|值|值|
 |jp.stock.7203|值|值|值|值|
 
+注：sig1，sig2是在前面regist_signal中注册过的买卖信号。
 
-
-比如，current["close_price"] 的话，将返回configure()所指定股票的close_price的pandas.Series object。
-
-ctx拥有以下method(是与initialize()传递的ctx不同的object，请注意)
+ctx与initialize()中的ctx是不同的object，其具备以下函数：
 
 <dl>
   <dt>ctx.getSecurity(sym)</dt>
-  <dd>返回相当于sym的Security object</dd>
+  <dd>返回对应于股票代码sym的Security object</dd>
 
   <dt>ctx.portfolio</dt>
-  <dd>管理资产配置的Portfolio object</dd>
+  <dd>储存资产配置信息的Portfolio object</dd>
 
   <dt>ctx.localStorage</dt>
-  <dd>下次handle_signals()被调用时，保存数据用的领域。
-在这里设定的值，在今后handle_signals()被调用时也会收到保障。</dd>
+  <dd>用户可以用该函数储存希望回测系统保存的变量。凡是通过此函数储存的变量，在接下来的所有handle_signals的运算中，都可被反复调用。</dd>
 </dl>
 
 
 ```python
     done_syms = set([])
 ```
-为防止根据当天信号进行的买卖交易和「止损交易，确定盈利交易」不重复，而准备区别用标签。
+定义一个集合变量，用于保存当天有买卖交易的股票信息。
 
 ```python
     for (sym,val) in ctx.portfolio.positions.items():
 ```
-如果当天有持有的股票，进行那个部分的处理。
+遍历当前时间点portfolio中的所有股票sym及其相应的数据信息val。
 
 ```python
         returns = val["returns"]
 ```
-获取与持仓的市场价格之间的差异。
+获得股票的当前收益率。
 
 ```python
         if returns < -0.03:
 ```
-判断市场价格是否低于获取价格3%以下。
+对于亏算高于3%的股票，执行以下操作：
 
 ```python
           sec = ctx.getSecurity(sym)
 ```
-获取改股票的Security object。
+返回该股票的信息，储存在一个security object中。
 
-同时，Security object拥有以下的method。
+Security object储存以下两个信息：
 
-*    code()    : 返回code值(ex. 9984)
-*    unit()    : 返回买卖单位(ex. 100)
+*    code()    : 股票代码(ex. 9984)
+*    unit()    : 基本买卖单位(ex. 100)
 
 ```python
-          sec.order(-val["amount"], comment="損切り(%f)" % returns)
+          sec.order(-val["amount"], comment="止损卖出(%f)" % returns)
           done_syms.add(sym)
 ```
 
-进行卖出处理，并标注不根据当天的信号进行买卖。
+卖出所有该股票。止损操作。并把该股票代码存入done_syms集合中。
 
 
 ```python
@@ -324,26 +298,26 @@ ctx拥有以下method(是与initialize()传递的ctx不同的object，请注意)
           sec.order(-val["amount"], comment="为确定盈利卖出(%f)" % returns)
           done_syms.add(sym)
 ```
-同样，升值5%以上，卖出确定盈利并标注。
+对于收益率高于5%的股票，全部卖出，锁定收益，并把该股票代码存入done_syms中。
 
 ```python
     buy = current["buy:sig"].dropna()
 ```
-获取buy信号的pandas.Series object。
+获取当前时间点的有效买入信号。
 
 ```python
     for (sym,val) in buy.items():
         if sym in done_syms:
           continue
 ```
-执行buy信号所设定的部分。但无视标注着止损或确定盈利标签的部分。
+跳过在止损或者锁定收益操作中已经处理过的股票。
 
 ```python
         sec = ctx.getSecurity(sym)
         sec.order(sec.unit() * 1, comment="SIGNAL BUY")
         pass
 ```
-对该股票下单。
+购买一个单位的该股票。
 
 ```python
     sell = current["sell:sig"].dropna()
@@ -354,8 +328,8 @@ ctx拥有以下method(是与initialize()传递的ctx不同的object，请注意)
         sec = ctx.getSecurity(sym)
         sec.order(sec.unit() * -1, comment="SIGNAL SELL")
         #ctx.logger.debug("SELL: %s,  %f" % (sec.code(), val))
-        pass
+        passs
 ```
-同样执行卖出订单。
+与买入下单相似，进行卖出操作。
 
-以上是样本程序的说明。
+对于样本策略的说明到此为止，点此学习更多[样本策略]，或者[开始制作]自己的策略吧。
