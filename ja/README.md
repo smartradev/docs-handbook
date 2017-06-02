@@ -122,7 +122,7 @@ dataは、pandas.Panel オブジェクトで、
 
 
 ```python
-        m25 = data["close_price_adj"].fillna(method='pad').rolling(window=25, center=False).mean()
+        m25 = data["close_price_adj"].fillna(method='ffill').rolling(window=25, center=False).mean()
 ```
 
 ここでは、データのうち「close_price_adj（株式分割調整後終値）」の25日移動平均を計算しています。
@@ -175,7 +175,7 @@ mean()についてはこちらを参照ください。
 |2017/5/3|25日移動平均値|25日移動平均値|25日移動平均値|25日移動平均値|…|
 
 ```python
-        m75 = data["close_price_adj"].fillna(method='pad').rolling(window=75, center=False).mean()
+        m75 = data["close_price_adj"].fillna(method='ffill').rolling(window=75, center=False).mean()
 ```
 
 同様に終値の75日移動平均値の配列をm75に格納します。

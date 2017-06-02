@@ -1,7 +1,7 @@
 # DataFrame的缺损值的补全
 
 ```python
-cpa = data["close_price_adj"].fillna(method='pad').rolling(window=25, center=False).mean()
+cpa = data["close_price_adj"].fillna(method='ffill').rolling(window=25, center=False).mean()
 ```
 
 缺损部分的数值设定为NaN(Not a Number)。

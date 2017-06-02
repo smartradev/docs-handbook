@@ -114,7 +114,7 @@ target用来指定策略所适用的股票市场（中国-cn或者日本-jp）�
 
 
 ```python
-        m25 = data["close_price_adj"].fillna(method='pad').rolling(window=25, center=False).mean()
+        m25 = data["close_price_adj"].fillna(method='ffill').rolling(window=25, center=False).mean()
 ```
 该式计算股票池中所有股票“close_price_adj”的25日移动平均值并保存在变量m25中。
 
@@ -160,7 +160,7 @@ rolling(window=25, center=False).mean()
 |2017/5/3|25天移动平均值|25天移动平均值|25天移动平均值|25天移动平均值|…|
 
 ```python
-        m75 = data["close_price_adj"].fillna(method='pad').rolling(window=75, center=False).mean()
+        m75 = data["close_price_adj"].fillna(method='ffill').rolling(window=75, center=False).mean()
 ```
 
 与m25的计算方式相同，该式计算75日移动平均值。
