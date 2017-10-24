@@ -2,7 +2,7 @@
 
 ## 全体の構成 {#overview}
 
-SmartTradeのpython coding におけるサンプルプログラムを例にしてアルゴリズム開発方法を説明します。
+QuantXのpython coding におけるサンプルプログラムを例にしてアルゴリズム開発方法を説明します。
 サンプルプログラムは、大きく分けると図のように青の部分とオレンジ色の2つの部分で関数されているのが分かります。
 
 <img src="img/fig1.png" style="margin: 10px; float: right; width: 500px;">
