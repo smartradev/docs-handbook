@@ -12,6 +12,7 @@
   * [データセット](dataset.jp.stock.md)
       * [jp.stock](dataset.jp.stock.md)
       * [cn.stock](dataset.cn.stock.md)
+      * [jp.bitflyer](dataset.jp.bitflyer.md)
 * [Tips](tips.md)
   * [DataFrameの欠損値の補完](tips.md)
   * [シグナル生成関数サンプル](signal-emitter-sample1.md)
