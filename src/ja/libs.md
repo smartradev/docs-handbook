@@ -1,20 +1,32 @@
-# 利用可能な外部ライブラリ
+# QuantX Engineの環境
 
-## maron-0.0.1系で対応
+QuantX Engineで利用できるライブラリのバージョンは次のようになっています。
 
-次のライブラリが利用可能です。
+### maron-0.0.1系
 
-* numpy
-* pandas
-* statsmodels
-* cvxopt
-* sklearn
-* scipy
+| packages | version |
+|-----------|------------|
+| Python | 3.5.2 |
+| numpy | 1.13.3 |
+| pandas | 0.19.2 |
+| statsmodels | 0.8.0 |
+| scikit-learn | 0.19.1 |
+| scipy | 1.0.0 |
+| TA-lib| 0.4.10 |
 
-## maron-0.1.0系で対応
+### maron-0.1.0系
 
-maron-0.0.1のライブラリに加えて以下を利用可能です。
-
-* xgboost
-* keras
-* chainer
+| packages | version |
+|-----------|------------|
+| Python | 3.5.2 |
+| numpy | 1.14.0 | 
+| pandas | 0.19.2 | 
+| statsmodels | 0.8.0 | 
+| scikit-learn | 0.19.1 |
+| scipy | 1.0.0 |
+| TA-lib| 0.4.16 |
+| cvxopt | 1.1.9 |
+| xgboost | 0.7.post3 |
+| Keras | 2.1.3 |
+| chainer | 3.3.0 |
+| tensorflow | 1.5.0 |
