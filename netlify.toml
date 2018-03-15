@@ -1,4 +1,4 @@
 [build]
   publish = "_book"
-  command = "npm install -g gitbook-cli && gitbook build"
+  command = "npm install -g gitbook-cli && cd src && gitbook build"
 
