@@ -72,7 +72,7 @@ target="jp.stock.daily"とした場合でも、"cn.stock"と指定すること�
 ```
 
 シグナルを計算するために必要なデータ種を指定します。
-現在使えるデータの種類は [データ・セット](dataset.jp.stock.md)を参照ください。
+現在使えるデータの種類は [データセット](dataset.jp.stock.md)を参照ください。
 
 
 ### 売買シグナル生成部分{#signal-emitter}
@@ -81,7 +81,9 @@ target="jp.stock.daily"とした場合でも、"cn.stock"と指定すること�
     def _mavg_signal(data):
 ```
 
-売買シグナルを生成する関数の定義です。  
+売買シグナルを生成する関数の定義です。
+ここで定義した関数を `ctx.regist_signal` で `ctx` に登録することでエンジンから使用されます。
+
 ここでは全銘柄、指定期間の全日付、全データの入った3次元の配列である「data」そのものを配列のまま演算しています。
 dataは、pandas.Panel オブジェクトで、
 
@@ -243,10 +245,11 @@ mean()についてはこちらを参照ください。
 今まで解説してきた関数「_mavg_signal」を登録して使うことを明示します。
 
 
-## 日ごとの処理部分の記述{#handle-signals}
+### 日ごとの処理部分の記述{#handle-signals}
 
 続いて、日ごとに呼び出される関数の説明です。これは例えば100日分のデータのバックテストをやる場合、100回呼び出される事になります。
 ここで株をどの位売買するかの決定や損切り、利益確定売りを指定します。
+この関数はエンジンから直接呼び出されます。
 
 
 ```python
@@ -265,18 +268,18 @@ dateはdatetime.datetime型 currentは、dateの当日のデータとシグナ�
 
 たとえば、current["close_price"] とすると、configure()で指定した銘柄のclose_priceのpandas.Seriesオブジェクトを返します。
 
-ctxは以下のメソッドを持つ(initialize()で渡されるctxとは別のオブジェクトであることに注意)
+ctxは以下のメソッドやプロパティを持つオブジェクトで,initialize()で渡されるctxとは別のオブジェクトとなります。
 
 <dl>
   <dt>ctx.getSecurity(sym)</dt>
-  <dd>symに相当するSecurityオブジェクトを返す</dd>
+  <dd>symに相当する<a href="api.html#Security">Security</a>オブジェクト（銘柄情報)を返す</dd>
 
   <dt>ctx.portfolio</dt>
-  <dd>ポートフォリオを管理するPortfolioオブジェクト</dd>
+  <dd>ポートフォリオを管理する<a href="api.html#Portfolio">Portfolio</a>オブジェクト</dd>
 
   <dt>ctx.localStorage</dt>
   <dd>次回handle_signals()が呼び出された時に保存しておきたいデータを保存しておく領域。
-ここに設定した値は、次回移行も設定されたままでhandle_signals()が呼び出されることが保証される。</dd>
+ここに設定した値は、次回以降も設定されたままでhandle_signals()が呼び出されることが保証されます。</dd>
 </dl>
 
 

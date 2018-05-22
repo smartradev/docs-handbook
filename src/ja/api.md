@@ -1,6 +1,75 @@
-# TinyLogging{#TinyLogging}
+# APIリファレンス
 
-  Pythonのlogging APIと同じ仕様で、以下のメソッドがある。
+## ctx{#ctx}
+
+  initialize や handle_signals の引数として渡されるオブジェクト。
+アルゴリズムの状態(Context)を保持します。
+
+#### logger: [TinyLogging](#TinyLogging)
+
+  後述する [TinyLogging](#TinyLogging) オブジェクト
+  
+#### portfolio: [Portfolio](#Portfolio)
+
+  handle_signalsに渡された時にセットされます。現在のアルゴリズムの取引状況を保持します。
+  
+#### localStorage: dict
+
+  次回handle_signals()が呼び出された時に保存しておきたいデータを保存しておく領域です。
+ここに設定した値は、次回以降も設定されたままでhandle_signals()が呼び出されることが保証されます。
+
+#### configure(target, channels) : void
+
+  initialize内でContextの設定をするためのメソッド。
+
+|パラメータ名|型|意味|例|
+|---|---|---|---|
+|target|String|タイプ(市場+足)を指定する|jp.stock.daily|
+|channels|dict|各市場をキーにして、取引対象銘柄名(symbols)や使用する指標値(columns)を指定する|　|
+
+```python
+    channels={          # 利用チャンネル
+      "jp.stock": {
+        "symbols": [
+          "jp.stock.7201",
+          "jp.stock.9201",
+          "jp.stock.9202",
+          "jp.stock.7203"
+        ],
+        "columns": [
+          "open_price_adj",    # 始値(株式分割調整後)
+          "high_price_adj",    # 高値(株式分割調整後)
+          "low_price_adj",     # 安値(株式分割調整後)
+          "close_price",        # 終値
+          "close_price_adj",    # 終値(株式分割調整後) 
+          "volume_adj",         # 出来高
+          "txn_volume",         # 売買代金
+        ]
+```
+
+#### regist_signal(name, handler) : void
+
+  initialize内でシグナルハンドラ関数を登録するためのメソッド。
+  
+|パラメータ名|型|意味|例|
+|---|---|---|---|
+|name|String|名称(何でもよい)|"my_signal"|
+|handler|function|シグナルハンドラ関数|　|
+
+
+#### getSecurity(sym) : [Security](#Security)
+
+  指定された銘柄のSecurityオブジェクトを取得します。
+
+|パラメータ名|型|意味|例|
+|---|---|---|---|
+|sym|String|銘柄|"jp.stock.7201"|
+
+---
+
+## TinyLogging{#TinyLogging}
+
+  Pythonのlogging APIと同じ仕様で、以下のメソッドがあります。
 
 ```python
     def debug()
@@ -10,17 +79,17 @@
     def critical()
 ```
 
-  それぞれのログレベルで、コンソールにログメッセージが出力される。
+  それぞれのログレベルで、コンソールにログメッセージが出力されます。
 
 ---
 
-# Portfolio{#Portfolio}
+## Portfolio{#Portfolio}
 
   ポートフォリオを管理するオブジェクト
 
-## portfolio.positions : dict
+#### portfolio.positions : dict
    保有している各銘柄にす関する情報を格納しているdict
-   keyはsymbolで、次のような値をもつ
+   keyはsymbolで、次のような値を持ちます
 
 ```python
      {
@@ -40,31 +109,81 @@
 
 ---
 
-# pandas情報{#pandas}
+## Security{#Security}
 
-## pandas.Panel(3次元)
+  銘柄を表すオブジェクト。 ctx.getSecurity() で取得できます。
+  このオブジェクトを使用して注文を行ないます。
+  
+#### code(): number
 
-[pandas.Panel](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Panel.html)
+  code値を返す(ex. 9984)
+  
+#### unit(): number
 
-## pandas.DataFrame(2次元)
+  売買単位を返す(ex. 100)
+  
+#### order(amount, comment): void
 
-[pandas.DataFrame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html)
+数量を指定して注文を行ないます。
 
-## pandas.Series(1次元)
+|パラメータ名|型|意味|例|
+|---|---|---|---|
+|amount|number|注文数。株式の場合は株数となります。|sec.unit() * 1|
+|comment|String|コメント。バックテスト結果に表示されます。|　|
 
-[pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html)
+#### order_value(amount, comment): void
+
+金額を指定して注文を行ないます。
+
+|パラメータ名|型|意味|例|
+|---|---|---|---|
+|amount|number|金額。指定された金額内で注文を行ないます。|100000|
+|comment|String|コメント。バックテスト結果に表示されます。|　|
+
+#### order_percent(amount, comment): void
+
+現在のポートフォリオに比した割合で注文を行ないます。
+
+|パラメータ名|型|意味|例|
+|---|---|---|---|
+|amount|number|割合(<1)を指定します。|.3 (30%)|
+|comment|String|コメント。バックテスト結果に表示されます。|　|
+
+#### order_target(amount, comment): void
+
+この銘柄の総保有数を指定して注文を行ないます。
+例えば、現在100株保有している状況で `amount=200` を指定すれば、100株の注文が実行されます。
+
+|パラメータ名|型|意味|例|
+|---|---|---|---|
+|amount|number|この銘柄の総保有数を指定します。|300|
+|comment|String|コメント。バックテスト結果に表示されます。|　|
+
+
+#### order_target_value(amount, comment): void
+
+この銘柄の総額を指定して注文を行ないます。
+例えば、現在この銘柄のポジションが 100,000円の状況で `amount=200,000` を指定すれば、100,000円以内で購入できる分の注文を行ないます。
+
+|パラメータ名|型|意味|例|
+|---|---|---|---|
+|amount|number|この銘柄の総額を指定します。|300000|
+|comment|String|コメント。バックテスト結果に表示されます。|　|
+
 
 ---
 
-# Order
+## pandas情報{#pandas}
 
-注文系関数
+### pandas.Panel(3次元)
 
-*      order()
-*      order_value()
-*      order_target_value()
-*      order_target()
-*      order_target_percent()
-*      order_percent()
+[pandas.Panel](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Panel.html)
 
-style引数には対応していません。
+### pandas.DataFrame(2次元)
+
+[pandas.DataFrame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html)
+
+### pandas.Series(1次元)
+
+[pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html)
+

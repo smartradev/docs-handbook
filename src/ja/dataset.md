@@ -1,6 +1,7 @@
 # データセット{#dataset}
 
 アルゴリズム作成に利用可能なデータセットは下記の通りです。
+データセットは ctx.configureの引数としてchannelsパラメータにセットします。
 
 ## jp.stock
 
@@ -22,7 +23,10 @@
 
 ```python
 channels={
-  symbols: [ "jp.stock.7201", "jp.stock.7203" ]
+  "jp.stock": {
+    symbols: [ "jp.stock.7201", "jp.stock.7203" ]
+    ...
+  }
   ...
 ```
 
