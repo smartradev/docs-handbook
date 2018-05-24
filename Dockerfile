@@ -1,4 +1,4 @@
-FROM node:6-alpine as build-env
+FROM node:8-alpine as build-env
 MAINTAINER dev@smarttrade.co.jp
 
 ENV LC_ALL C.UTF-8
