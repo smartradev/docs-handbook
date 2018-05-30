@@ -91,7 +91,7 @@ dataは、pandas.Panel オブジェクトで、
   * axis-1(major): 日付(datetime.datetime型)　
   * axis-2(minor): 銘柄名(symbol object型)　　
 
-と、定義されています。
+と、定義されています。（注：dataへの変更は反映されませんので読み取り専用で使用してください。)
 
 この例で行くとdataには、
 
