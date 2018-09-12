@@ -14,6 +14,7 @@
   * [jp.stock](dataset.jp.stock.md)
   * [cn.stock](dataset.cn.stock.md)
   * [jp.bitflyer](dataset.jp.bitflyer.md)
+  * [QuantX Cup 2018](dataset.quantxcup2018.md)
 * [使用可能ライブラリ、制限事項等](libs.md)
 * [Tips](tips.md)
   * [DataFrameの欠損値の補完](tips.md)
