@@ -15,6 +15,7 @@
   * [cn.stock](dataset.cn.stock.md)
   * [jp.bitflyer](dataset.jp.bitflyer.md)
 * QuantX Cup 2018
+  * [センチメントデータ概要](quantxcup2018.sentiment-data.md)
   * データセット
     * [日本株](dataset.quantxcup2018.jp.stock.md)
     * [為替](dataset.quantxcup2018.jp.thomsonreuters.currency.md)
