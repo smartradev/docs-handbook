@@ -14,12 +14,13 @@
   * [jp.stock](dataset.jp.stock.md)
   * [cn.stock](dataset.cn.stock.md)
   * [jp.bitflyer](dataset.jp.bitflyer.md)
-  * Thomson Reuters
-    * [jp.stock](dataset.thomsonreuters.jp.stock.md)
-    * [jp.thomsonreuters.currency](dataset.thomsonreuters.jp.thomsonreuters.currency.md)
-    * [jp.thomsonreuters.index](dataset.thomsonreuters.jp.thomsonreuters.index.md)
-    * [jp.thomsonreuters.sentiment.country](dataset.thomsonreuters.jp.thomsonreuters.sentiment.country.md)
-    * [jp.thomsonreuters.sentiment.currency](dataset.thomsonreuters.jp.thomsonreuters.sentiment.currency.md)
+* QuantX Cup 2018
+  * データセット
+    * [日本株](dataset.quantxcup2018.jp.stock.md)
+    * [為替](dataset.quantxcup2018.jp.thomsonreuters.currency.md)
+    * [インデックス](dataset.quantxcup2018.jp.thomsonreuters.index.md)
+    * [各国に関するセンチメント](dataset.quantxcup2018.jp.thomsonreuters.sentiment.country.md)
+    * [通貨に関するセンチメント](dataset.quantxcup2018.jp.thomsonreuters.sentiment.currency.md)
 * [使用可能ライブラリ、制限事項等](libs.md)
 * [Tips](tips.md)
   * [DataFrameの欠損値の補完](tips.md)

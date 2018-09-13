@@ -41,8 +41,8 @@
 |**price_index**|指数|指数|
 |**market_value**|Market Value|時価総額|
 |**total_return_index**|Total Return Index|株価指数の構成銘柄の値動きだけでなく、構成銘柄の配当も加味したパフォーマンスを示す株価指数|
-|**turnover_by_volume**|Turnover by volume|売買高（出来高）|
-|**turnover_by_value**|Turnover by Value|時価総額|
+|**turnover_by_volume**|Turnover by volume|売買高|
+|**turnover_by_value**|Turnover by Value|売買代金|
 |**per**|Price / Earning Ratio|1株当たり当期純利益|
 
 ## 指定例
