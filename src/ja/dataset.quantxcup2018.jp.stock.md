@@ -8,6 +8,10 @@ QuantX Cup 2018 では、トムソン・ロイター・ジャパン株式会社�
 | symbols| データを取得する銘柄コードを配列で指定します。<br> **銘柄コードの指定可能銘柄数はコンテスト中は制限がありません。**|
 | columns| symbolsで指定した銘柄において、取得するデータの種類を配列で指定します。 |
 
+## 使用可能銘柄リスト
+
+初期資金量を考慮して、日経400からいくつかの銘柄を除いています。詳しくは[こちら](https://docs.google.com/spreadsheets/d/1FypHOtzAfe3y1-weQAzsL3UCFzyy8x2FAjkoG5JVGyw/edit?usp=sharing)をご覧ください。
+
 ## columns
 
 各銘柄において取得するデータの種類を指定します。指定可能な値は次の通りです。
