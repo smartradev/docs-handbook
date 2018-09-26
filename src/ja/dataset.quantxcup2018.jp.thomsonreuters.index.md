@@ -20,7 +20,7 @@
 |**jasdaq_std**|JASDAQ STANDARD|ジャスダックスタンダードに上場している全銘柄の合計時価総額を対象とした株価指数|
 |**jasdaq_top20**|JASDAQ TOP 20|JASDAQ市場に上場する銘柄のうち、流動性や上場時価総額等多面的な尺度で選定する20銘柄を. 対象とした株価指数|
 |**jasdaq_growth**|JASDAQ GROWTH|ジャスダックグロースに上場している全銘柄の合計時価総額を対象とした株価指数|
-|**tsreit**|東証REIT指数|東京証券取引所に上場している不動産投資信託（J-REIT）全銘柄を対象とした時価総額加重平均の指数|
+|**tsereit**|東証REIT指数|東京証券取引所に上場している不動産投資信託（J-REIT）全銘柄を対象とした時価総額加重平均の指数|
 
 ## 指定例
 
@@ -66,7 +66,7 @@ initialize()関数の中で次のような形式で、ctx.configure()を呼び�
           "symbols": [
               "n225",
               "topix",
-              "tsreit",
+              "tsereit",
         ],
         "columns": ["price_index", "market_value"]
       }
