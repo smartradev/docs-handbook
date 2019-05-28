@@ -12,4 +12,4 @@ cpa = data["close_price_adj"].fillna(method='ffill').rolling(window=25, center=F
 http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.fillna.html#pandas.DataFrame.fillna
 
 
-test
+test test
