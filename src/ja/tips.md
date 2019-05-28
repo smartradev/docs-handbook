@@ -10,6 +10,3 @@ cpa = data["close_price_adj"].fillna(method='ffill').rolling(window=25, center=F
 欠損値をfillすることで、欠損していた該当日以降の移動平均も算出することが可能になります。
 
 http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.fillna.html#pandas.DataFrame.fillna
-
-
-test test
