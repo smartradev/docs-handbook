@@ -102,6 +102,7 @@ dataは、pandas.Panel オブジェクトで、
 |jp.stock.9201|値|値|値|
 |jp.stock.9202|値|値|値|
 |jp.stock.7203|値|値|値|
+
 　　　　　　　　　　　　　　　　　　：
 　　　　　　　　　　　　　　　　　　：
 
