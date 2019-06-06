@@ -5,7 +5,7 @@
 QuantXのpython coding におけるサンプルプログラムを例にしてアルゴリズム開発方法を説明します。
 サンプルプログラムは、大きく分けると図のように青の部分とオレンジ色の2つの部分で関数されているのが分かります。
 
-<img src="img/fig1.png" style="margin: 10px; float: right; width: 500px;">
+<img src="img/fig1.jpeg" style="margin: 10px; float: right; width: 500px;">
 
 双方の関数とも、バックテストエンジンから必要なときに呼び出されます。
 
