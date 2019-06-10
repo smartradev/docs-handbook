@@ -130,8 +130,8 @@
 |---|---|---|---|
 |amount|number|注文数。株式の場合は株数となります。|sec.unit() * 1|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
-|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
-|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 maron-0.0.5以上で利用可能です。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 maron-0.0.5以上で利用可能です。 | limit_price=1000 |
 
 
 #### order_value(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
@@ -142,8 +142,8 @@
 |---|---|---|---|
 |amount|number|金額。指定された金額内で注文を行ないます。|100000|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
-|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
-|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 maron-0.0.5以上で利用可能です。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 maron-0.0.5以上で利用可能です。 | limit_price=1000 |
 
 #### order_percent(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
@@ -153,8 +153,8 @@
 |---|---|---|---|
 |amount|number|割合(<1)を指定します。|.3 (30%)|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
-|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
-|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 maron-0.0.5以上で利用可能です。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 maron-0.0.5以上で利用可能です。 | limit_price=1000 |
 
 #### order_target(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
@@ -165,8 +165,8 @@
 |---|---|---|---|
 |amount|number|この銘柄の総保有数を指定します。|300|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
-|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
-|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 maron-0.0.5以上で利用可能です。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 maron-0.0.5以上で利用可能です。 | limit_price=1000 |
 
 #### order_target_value(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
@@ -177,8 +177,8 @@
 |---|---|---|---|
 |amount|number|この銘柄の総額を指定します。|300000|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
-|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
-|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 maron-0.0.5以上で利用可能です。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 maron-0.0.5以上で利用可能です。 | limit_price=1000 |
 
 #### order_target_percent(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
@@ -189,8 +189,8 @@ amountには割合(例:5%なら0.05)を指定します。
 |---|---|---|---|
 |amount|number|この銘柄の総保有額の目標割合を指定します。|0.05|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
-|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
-|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 maron-0.0.5以上で利用可能です。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 maron-0.0.5以上で利用可能です。 | LIMIT_PRICE=1000 |
 
 ---
 
