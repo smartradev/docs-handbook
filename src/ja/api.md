@@ -122,7 +122,7 @@
 
   売買単位を返す(ex. 100)
   
-#### order(amount, comment): void
+#### order(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
 数量を指定して注文を行ないます。
 
@@ -130,8 +130,11 @@
 |---|---|---|---|
 |amount|number|注文数。株式の場合は株数となります。|sec.unit() * 1|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
 
-#### order_value(amount, comment): void
+
+#### order_value(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
 金額を指定して注文を行ないます。
 
@@ -139,8 +142,10 @@
 |---|---|---|---|
 |amount|number|金額。指定された金額内で注文を行ないます。|100000|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
 
-#### order_percent(amount, comment): void
+#### order_percent(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
 現在のポートフォリオに比した割合で注文を行ないます。
 
@@ -148,8 +153,10 @@
 |---|---|---|---|
 |amount|number|割合(<1)を指定します。|.3 (30%)|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
 
-#### order_target(amount, comment): void
+#### order_target(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
 この銘柄の総保有数を指定して注文を行ないます。
 例えば、現在100株保有している状況で `amount=200` を指定すれば、100株の注文が実行されます。
@@ -158,9 +165,10 @@
 |---|---|---|---|
 |amount|number|この銘柄の総保有数を指定します。|300|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
 
-
-#### order_target_value(amount, comment): void
+#### order_target_value(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
 この銘柄の総額を指定して注文を行ないます。
 例えば、現在この銘柄のポジションが 100,000円の状況で `amount=200,000` を指定すれば、100,000円以内で購入できる分の注文を行ないます。
@@ -169,9 +177,10 @@
 |---|---|---|---|
 |amount|number|この銘柄の総額を指定します。|300000|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
 
-
-#### order_target_percent(amount, comment): void
+#### order_target_percent(amount, comment, order_type=OrderType.OPEN_PRICE, limit_price=None): void
 
 この銘柄の総保有額が総資産評価額(現金+保有ポジション評価額)に対して指定の割合となるように注文を行ないます。
 amountには割合(例:5%なら0.05)を指定します。
@@ -180,6 +189,8 @@ amountには割合(例:5%なら0.05)を指定します。
 |---|---|---|---|
 |amount|number|この銘柄の総保有額の目標割合を指定します。|0.05|
 |comment|String|コメント。バックテスト結果に表示されます。|　|
+|order_type|maron.OrderType|約定タイミングを指定します。省略時は、 `OrderType.OPEN_PRICE` が指定されたものとされます。 | |
+|limit_price|number|order_typeが `OrderType.LIMIT_PRICE` のときの指値を指定します。 | LIMIT_PRICE=1000 |
 
 ---
 
