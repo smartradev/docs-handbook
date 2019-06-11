@@ -88,7 +88,7 @@
   ポートフォリオを管理するオブジェクト
 
 #### portfolio.positions : dict
-   保有している各銘柄にす関する情報を格納しているdict
+   保有している各銘柄に関する情報を格納しているdict
    keyはsymbolで、次のような値を持ちます
 
 ```python
