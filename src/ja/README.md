@@ -5,7 +5,7 @@
 QuantXのpython coding におけるサンプルプログラムを例にしてアルゴリズム開発方法を説明します。
 サンプルプログラムは、大きく分けると図のように青の部分とオレンジ色の2つの部分で関数されているのが分かります。
 
-<img src="img/fig1.png" style="margin: 10px; float: right; width: 500px;">
+<img src="img/fig1.jpeg" style="margin: 10px; float: right; width: 500px;">
 
 双方の関数とも、バックテストエンジンから必要なときに呼び出されます。
 
@@ -30,55 +30,45 @@ def initialize(ctx):
 初期化を行う関数。ctxのメソッドは、initialize()の中でのみ呼び出しが可能です。
 
 ```python
-    ctx.configure()
+  ctx.configure()
 ```
 
 この段落で、アルゴリズムで利用するデータの宣言を行うことで初期化を行います。
 
 ```python
-        target="jp.stock.daily",
-```
-
-日本の株式市場の日足を対象としたアルゴリズムであることを宣言します。
-中国市場の日足を対象とする場合には、"cn.stock.daily" という指定を行います。
-targetを切り替えることで、バックテストエンジンで扱う通貨設定と、後述するhandle_signals()の呼び出し時刻が適切に調整されどの市場を基準にバックテストを行うかを指定することができます。
-
-```python
-      channels={
-        "jp.stock": {
+    channels={               # 利用チャンネル
+      "jp.stock": {
 ```
 
 アルゴリズムで利用する日本株データを宣言しています。
-target="jp.stock.daily"とした場合でも、"cn.stock"と指定することで、中国株のデータを取得することが可能です。
 
 ```python
-          "symbols": [
-            "jp.stock.7201",
-            "jp.stock.9201",
-            "jp.stock.9202",
-            "jp.stock.7203"
-          ],
+        "symbols": [
+          "jp.stock.7201",
+          "jp.stock.1305",
+          "jp.stock.9984",
+          "jp.stock.9983",
+        ],
 ```
 
 対象とする証券コードを指定します。たとえば、jp.stock.7201 は日産自動車株式会社を意味します。
 
-
 ```python
-          "columns": [
-            "close_price_adj",    # 終値(株式分割調整後)
-            "volume_adj",         # 出来高
-            "txn_volume",         # 売買代金
-          ]
+        "columns": [
+          "close_price",     # 終値
+          "close_price_adj", # 終値(株式分割調整後)
+          "volume_adj",      # 出来高
+          "txn_volume",      # 売買代金
+        ]
 ```
 
 シグナルを計算するために必要なデータ種を指定します。
 現在使えるデータの種類は [データセット](dataset.jp.stock.md)を参照ください。
 
-
 ### 売買シグナル生成部分{#signal-emitter}
 
 ```python
-    def _mavg_signal(data):
+　 def _my_signal(data):
 ```
 
 売買シグナルを生成する関数の定義です。
@@ -87,14 +77,13 @@ target="jp.stock.daily"とした場合でも、"cn.stock"と指定すること�
 ここでは全銘柄、指定期間の全日付、全データの入った3次元の配列である「data」そのものを配列のまま演算しています。
 dataは、pandas.Panel オブジェクトで、
 
-  * axis-0(items): データ項目(close_price, volume, etc.)　　
-  * axis-1(major): 日付(datetime.datetime型)　
-  * axis-2(minor): 銘柄名(symbol object型)　　
+  * axis-0(items): データ項目(close_price, volume, etc.)
+  * axis-1(major): 日付(datetime.datetime型)
+  * axis-2(minor): 銘柄名(symbol object型)
 
 と、定義されています。（注：dataへの変更は反映されませんので読み取り専用で使用してください。)
 
 この例で行くとdataには、
-
 
 2017/5/9の
 
@@ -114,7 +103,6 @@ dataは、pandas.Panel オブジェクトで、
 |jp.stock.9202|値|値|値|
 |jp.stock.7203|値|値|値|
 
-
 　　　　　　　　　　　　　　　　　　：
 　　　　　　　　　　　　　　　　　　：
 
@@ -122,9 +110,14 @@ dataは、pandas.Panel オブジェクトで、
 
 というようなイメージで、3次元的な形式で格納されています。
 
+```python
+　   cp =  data["close_price_adj"].fillna(method='ffill')
+```
+
+今回は計算には使用していませんが、仮にcpという変数で終値を定義したい場合、このように書きます。
 
 ```python
-        m25 = data["close_price_adj"].fillna(method='ffill').rolling(window=25, center=False).mean()
+　   m25 = data["close_price_adj"].fillna(method='ffill').rolling(window=25, center=False).mean()
 ```
 
 ここでは、データのうち「close_price_adj（株式分割調整後終値）」の25日移動平均を計算しています。
@@ -140,7 +133,8 @@ data["close_price_adj"]
 取得されるデータは、次のようなイメージで、全銘柄、全日付のclose_price_adjが入った行列が返されます。
 
 || jp.stock.7201 | jp.stock.9201 | jp.stock.9202 | jp.stock.7203|…|
-|:-----------:|:------------:|:------------:|:------------:|:------------:|
+|:-----------:|:------------:|:------------:|:------------:|:------------:|:------------:|
+|2017/5/1|終値|終値|終値|終値|…|
 |2017/5/1|終値|終値|終値|終値|…|
 |2017/5/2|終値|終値|終値|終値|…|
 |2017/5/3|終値|終値|終値|終値|…|
@@ -148,6 +142,7 @@ data["close_price_adj"]
 ```python
 fillna(method='ffill')
 ```
+
 こちらは、欠損データの補完を行っています。
 データにはたまに欠損があります。これは例えばストップ安で値がつかなかったりするなど、様々な要因で終値がNaNとなることがあります。
 NaNが計算式に含まれると、式の結果は自動的にNaNとなってしまうため、移動平均の計算に支障が発生する可能性があります。
@@ -167,63 +162,95 @@ rolling()についてはこちらを
 mean()についてはこちらを参照ください。
 [pandas.DataFrame.mean](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.mean.html#pandas.DataFrame.mean)
 
-
 最終的にm25という2次元配列に次のように終値の25日移動平均値が各銘柄、各日付において格納される結果となります。
 
 || jp.stock.7201 | jp.stock.9201 | jp.stock.9202 | jp.stock.7203|…|
-|:-----------:|:------------:|:------------:|:------------:|:------------:|
+|:-----------:|:------------:|:------------:|:------------:|:------------:|:------------:|
 |2017/5/1|25日移動平均値|25日移動平均値|25日移動平均値|25日移動平均値|…|
 |2017/5/2|25日移動平均値|25日移動平均値|25日移動平均値|25日移動平均値|…|
 |2017/5/3|25日移動平均値|25日移動平均値|25日移動平均値|25日移動平均値|…|
 
 ```python
-        m75 = data["close_price_adj"].fillna(method='ffill').rolling(window=75, center=False).mean()
+　   m75 = data["close_price_adj"].fillna(method='ffill').rolling(window=75, center=False).mean()
 ```
 
 同様に終値の75日移動平均値の配列をm75に格納します。
 
 ```python
-        ratio = m25 / m75
+　   ratio = m25 / m75
 ```
+
 2次元配列であるm25を、同様のサイズの2次元配列であるm75で割ります。
 結果は25日移動平均値を75日移動平均値で割った値の2次元配列がratioに格納されます。
 
 ```python
-        buy_sig = ratio[ratio > 1.05]
-```
-ここではまず、ratio > 1.05　が評価されます。つまり25日移動平均値を75日移動平均値で割った値が1.05を超えていた場合、True、そうでない場合Falseの
-論理値の2次元配列が出来上がります。
-
-|| jp.stock.7201 | jp.stock.9201 | jp.stock.9202 | jp.stock.7203|…|
-|:-----------:|:------------:|:------------:|:------------:|:------------:|
-|2017/5/1|True|False|True|True|…|
-|2017/5/2|False|False|False|False|…|
-|2017/5/3|True|True|True|True|…|
-
-次にratio[論理値2次元配列]がbuy_sigという2次元配列に格納されるので、結果的に25日移動平均値を75日移動平均値で割った値が1.05を超えていた
-要素だけがbuy_sigに入り、それ以外は None になります。
-
-|| jp.stock.7201 | jp.stock.9201 | jp.stock.9202 | jp.stock.7203|…|
-|:-----------:|:------------:|:------------:|:------------:|:------------:|
-|2017/5/1|値|None|値|値|…|
-|2017/5/2|None|None|None|None|…|
-|2017/5/3|値|値|値|値|…|
-
-
-```python
-        sell_sig = ratio[ratio < 0.95]
+　   buy_sig = ratio > 1.05
 ```
 
-同様に25日移動平均値を75日移動平均値で割った値が0.95より小さい場合、sell_sig配列に値を格納します。
+ここではまず、ratio > 1.05　が評価されます。つまり25日移動平均値を75日移動平均値で割った値が1.05を超えていた場合True、そうでない場合Falseの
+真偽値の2次元配列が出来上がります。
 
+|            | jp.stock.1305 | jp.stock.7201 | jp.stock.9983 | jp.stock.9984 |
+|------------|---------------|---------------|---------------|---------------|
+| 2019-05-08 | False         | False         | True          | True          |
+| 2019-05-09 | False         | False         | True          | True          |
+| 2019-05-09 | False         | False         | True          | True          |
 
 ```python
-        return {
-            "mavg_25:price": m25,
-            "mavg_75:price": m75,
-            "buy:sig": buy_sig,
-            "sell:sig": sell_sig,
-        }
+　   sell_sig = ratio < 0.95
+```
+
+同様に25日移動平均値を75日移動平均値で割った値が0.95より小さい場合True、そうでない場合Falseの
+真偽値をsell_sig配列に格納します。
+
+このままだと、buy_sigとsell_sigが二つ同時に起こる可能性があるので、その対策をしていきます。
+ここでは、market_sigという市況シグナルを定義し、買いシグナルは1.0、売りシグナルは-1.0、取引しない状態を0で出すようにしていきます。
+また、buy_sigとsell_sigが二つ同時に起こった場合、取引しないようにしていきます。
+
+```python
+　   market_sig = pd.DataFrame(data=0.0, columns=cp.columns, index=cp.index)
+```
+
+cpのDataFrameと同じindexおよびcolumnsのDataFrameを作成します。
+最初は全て0の値を格納しています。
+
+|            | jp.stock.1305 | jp.stock.7201 | jp.stock.9983 | jp.stock.9984 |
+|------------|---------------|---------------|---------------|---------------|
+| 2019-04-11 | 0             | 0             | 0             | 0             |
+| 2019-04-12 | 0             | 0             | 0             | 0             |
+| 2019-04-15 | 0             | 0             | 0             | 0             |
+
+```python
+　   market_sig[buy_sig == True] = 1.0
+```
+
+先程、定義したbuy_sigがTrueの時、market_sigの0の値を1.0に変えます。
+
+|            | jp.stock.1305 | jp.stock.7201 | jp.stock.9983 | jp.stock.9984 |
+|------------|---------------|---------------|---------------|---------------|
+| 2019-04-11 | 0.0           | 0.0           | 1.0           | 1.0           |
+| 2019-04-12 | 0.0           | 0.0           | 1.0           | 1.0           |
+| 2019-04-15 | 0.0           | 0.0           | 1.0           | 1.0           |
+
+```python
+　   market_sig[sell_sig == True] = -1.0
+```
+
+同様に、定義したsell_sigがTrueの時、market_sigの0の値を-1.0に変えます。
+
+```python
+　   market_sig[(buy_sig == True) & (sell_sig == True)] = 0.0
+```
+
+最後に、buy_sigおよびsell_sigがTrueの時market_sigの値を0.0に変えます。
+
+```python
+　   return {
+　     "mavg_25:price": m25,
+　     "mavg_75:price": m75,
+　     "ratio:g2":ratio,
+　     "market:sig": market_sig,
+　   }
 ```
 
 後ほど利用する配列を定義して残します。
@@ -238,21 +265,19 @@ mean()についてはこちらを参照ください。
 
 の色が固定的に利用されます。
 
-<span style="color:red">※QuantX Storeで販売したいアルゴリズムについては、必ず `buy:sig` (買いシグナル)と `sell:sig` （売りシグナル）を return するようにしてください。</span>
-
+<span style="color:red">※QuantX Storeで販売したいアルゴリズムについては、必ず `market:sig` (市況シグナル)を return するようにしてください。</span>
 
 ```python
-    ctx.regist_signal("mavg_signal", _mavg_signal)
+　 ctx.regist_signal("my_signal", _my_signal)
 ```
-今まで解説してきた関数「_mavg_signal」を登録して使うことを明示します。
 
+今まで解説してきた関数「my_signal」を登録して使うことを明示します。
 
 ### 日ごとの処理部分の記述{#handle-signals}
 
 続いて、日ごとに呼び出される関数の説明です。これは例えば100日分のデータのバックテストをやる場合、100回呼び出される事になります。
 ここで株をどの位売買するかの決定や損切り、利益確定売りを指定します。
 この関数はエンジンから直接呼び出されます。
-
 
 ```python
 def handle_signals(ctx, date, current):
@@ -266,7 +291,6 @@ dateはdatetime.datetime型 currentは、dateの当日のデータとシグナ�
 |jp.stock.9201|値|値|値|値|
 |jp.stock.9202|値|値|値|値|
 |jp.stock.7203|値|値|値|値|
-
 
 たとえば、current["close_price"] とすると、configure()で指定した銘柄のclose_priceのpandas.Seriesオブジェクトを返します。
 
@@ -284,30 +308,40 @@ ctxは以下のメソッドやプロパティを持つオブジェクトで,init
 ここに設定した値は、次回以降も設定されたままでhandle_signals()が呼び出されることが保証されます。</dd>
 </dl>
 
+```python
+　 market_sig = current["market:sig"]
+```
+
+はじめに売買シグナルを定義するための判断材料となる市況シグナルを用意します。
 
 ```python
-    done_syms = set([])
+　 done_syms = set([])
 ```
+
 当該の日にシグナルによる売買と「損切り、利益確定売り」が被らないようにフラグを用意します。
 
 ```python
-    for (sym,val) in ctx.portfolio.positions.items():
+　 for (sym, val) in ctx.portfolio.positions.items():
 ```
+
 当該の日にポジションを持っている銘柄があった場合、そこの部分の処理をします。
 
 ```python
-        returns = val["returns"]
+　   returns = val["returns"]
 ```
+
 ポジションの時価との差異を取ります。
 
 ```python
-        if returns < -0.03:
+　   if returns < -0.03:
 ```
+
 時価が取得時より3%下落下かどうかを評価します。
 
 ```python
-          sec = ctx.getSecurity(sym)
+　     sec = ctx.getSecurity(sym)
 ```
+
 当該銘柄のSecurityオブジェクトを取得。
 
 なお、Securityオブジェクトには次のメソッドが有ります。
@@ -316,51 +350,76 @@ ctxは以下のメソッドやプロパティを持つオブジェクトで,init
 *    unit()    : 売買単位を返す(ex. 100)
 
 ```python
-          sec.order(-val["amount"], comment="損切り(%f)" % returns)
-          done_syms.add(sym)
+　     sec.order(-val["amount"],orderType=maron.OrderType.MARKET_OPEN, comment="損切り(%f)" % returns)
+　     done_syms.add(sym)
 ```
 
 売却処理を行い、当該の日ではシグナルでの売買をしないようフラグを立てます。
 
-
 ```python
-        elif returns > 0.05:
-          sec = ctx.getSecurity(sym)
-          sec.order(-val["amount"], comment="利益確定売(%f)" % returns)
-          done_syms.add(sym)
+　   elif returns > 0.05:
+　     sec = ctx.getSecurity(sym)
+　     sec.order(-val["amount"],orderType=maron.OrderType.MARKET_OPEN, comment="利益確定売(%f)" % returns)
+　     done_syms.add(sym)
 ```
+
 同様に5%以上値上がりしていたら利益確定売りをしてフラグを立てます。
 
 ```python
-    buy = current["buy:sig"].dropna()
+buy = market_sig[market_sig　> 0.0]
 ```
-buyシグナルの項目のpandas.Seriesオブジェクトを取得します。
+
+buyシグナルの項目のpandas.Seriesオブジェクトを取得します。ここでは市況シグナルが0より大きいものをbuyとして扱います。
 
 ```python
-    for (sym,val) in buy.items():
-        if sym in done_syms:
-          continue
+　 for (sym, val) in buy.items():
+　   if sym in done_syms:
+　     continue
 ```
+
 buyシグナルが設定された所を実行します。ただし、損切りか利益確定売りをしたフラグが立っていたら無視します。
 
 ```python
-        sec = ctx.getSecurity(sym)
-        sec.order(sec.unit() * 1, comment="SIGNAL BUY")
-        pass
+　   sec = ctx.getSecurity(sym)
+　   sec.order(sec.unit() * 1, orderType=ot, limit_price=current["close_price"][sym], comment="SIGNAL BUY")
+　   pass
 ```
+
 当該の銘柄の発注を行います。
 
-```python
-    sell = current["sell:sig"].dropna()
-    for (sym,val) in sell.items():
-        if sym in done_syms:
-          continue
+株の数量指定は以下のURLを参照にしてください
+https://factory.quantx.io/handbook/ja/api.html#Security
 
-        sec = ctx.getSecurity(sym)
-        sec.order(sec.unit() * -1, comment="SIGNAL SELL")
-        #ctx.logger.debug("SELL: %s,  %f" % (sec.code(), val))
-        pass
+今回は買いシグナルが出たら、100株買うようにしています。
+
+注文方法（orderType）は
+1: 翌日の前場寄成
+2: 翌日の後場引成
+3: 指値
+
+三つから指定でき、最初にimportしたmaronライブラリーのメソッドを使えば指定できます。
+
+```python
+#ot = maron.OrderType.MARKET_CLOSE # シグナルがでた翌日の終値のタイミングでオーダー
+ot = maron.OrderType.MARKET_OPEN   # シグナルがでた翌日の始値のタイミングでオーダー
+#ot = maron.OrderType.LIMIT        # 指値によるオーダー
 ```
+
+今回は翌日の前場寄成による注文をしています。
+
+また、注文した際のcommentも指定することができます。
+
+```python
+　 sell = market_sig[market_sig<0.0]
+　 for (sym,val) in sell.items():
+　   if sym in done_syms:
+　     continue
+　   sec = ctx.getSecurity(sym)
+　   sec.order(sec.unit() * -1,orderType=ot, limit_price=current["close_price"][sym], comment="SIGNAL SELL")
+　   #ctx.logger.debug("SELL: %s,  %f" % (sec.code(), val))
+　   pass
+```
+
 同様に売り注文も実行します。
 
 以上、サンプルプログラムの解説でした。
