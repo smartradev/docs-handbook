@@ -32,5 +32,7 @@ QuantX Factoryで利用できるライブラリのバージョンは次のよう
 | Keras | 2.2.4 |
 | chainer | 6.0.0 |
 | tensorflow | 1.13.1 |
+| PyTorch | 1.7.0 |
+| gym | 0.17.3 |
 
 
