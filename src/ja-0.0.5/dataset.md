@@ -1,13 +1,14 @@
 # データセット{#dataset}
 
 アルゴリズム作成に利用可能なデータセットは下記の通りです。
+データセットは ctx.configureの引数としてchannelsパラメータにセットします。
 
-## jp.stock.daily
+## jp.stock
 
-日本の株式市場の日足データです。
+日本の株式市場のデータです。
 
 
-| キー | 說明 |
+| キー | 說明  	| 指定例 |
 |---	|---	|---	|
 | symbols	| データを取得する銘柄コードを配列で指定します。銘柄コードは50種類まで指定可能です。 |
 | columns	| symbolsで指定した銘柄において、取得するデータの種類を配列で指定します。 | 
@@ -22,7 +23,10 @@
 
 ```python
 channels={
-  symbols: [ "jp.stock.7201", "jp.stock.7203" ]
+  "jp.stock": {
+    symbols: [ "jp.stock.7201", "jp.stock.7203" ]
+    ...
+  }
   ...
 ```
 
@@ -53,19 +57,12 @@ channels={
   columns: ["close_price_adj", "open_price_adj"]
   ...
 ```
+## cn.stock
+
+中国市場のデータです。
+
+ratio[(0.8 < ratio) & (ratio < 0.91)]
 
 
-## 例
-
-銘柄、"7201"、"7203" の、株式分割調整後終値と株式分割調整後始値を取得したい場合は、
-initialize()関数の中で次のような形式で、ctx.configure()を呼び出します。
-
-```python
-  ctx.configure(channels={
-      "jp.stock": {
-          "symbols": [ "jp.stock.7201", "jp.stock.7203" ],
-          "columns": [ "close_price_adj", "open_price_adj" ]
-      }
-  }
-         
-```
+ratio[ratio < 0.8] = 0.8
+buy_sig = ratio[(0.8 <= ratio) & (ratio < 0.91)]
