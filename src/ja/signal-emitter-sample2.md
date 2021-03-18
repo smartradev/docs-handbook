@@ -2,11 +2,6 @@
 
 TA-libの呼び方。
 
-op = p["open_price_adj"] で pandas.DataFrameにして、
-op[sym] で、さらに pandas.Series に絞り込んで、
-op[sym].values で、numpy.ndarray にしている。
-TA-libは、引数としてndarrayをとるので、わざわざこんなことをしている。
-
 ```python
 
     def _CDLBELTHOLD(p):
@@ -17,10 +12,10 @@ TA-libは、引数としてndarrayをとるので、わざわざこんなこと�
 
       result = {}
       for (sym,val) in op.items():
-        result[sym] = ta.CDLBELTHOLD(op[sym].values.astype(np.double),
-                                     hp[sym].values.astype(np.double),
-                                     lp[sym].values.astype(np.double),
-                                     cp[sym].values.astype(np.double))
+        result[sym] = ta.CDLBELTHOLD(op[sym],
+                                     hp[sym],
+                                     lp[sym],
+                                     cp[sym])
 
       #ctx.logger.debug(val)
 

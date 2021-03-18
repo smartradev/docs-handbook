@@ -5,7 +5,7 @@ VisualCodingで提供されているコンポーネントから呼び出され�
 
 ```python
 
-    def _sma(data):
+    def _sma(datas):
       # constant params...
       a = 25
       b = 75
@@ -13,9 +13,12 @@ VisualCodingで提供されているコンポーネントから呼び出され�
       op = lambda x: x > d
       vp = 2
 
+      daily = datas["jp.stock.daily"]
+      cp = daily["close_price_adj"].unstack(level="symbol").fillna(method="ffill")
+
       # calc mavg...
-      df_a = data["close_price_adj"].rolling(window=a, center=False).mean()
-      df_b = data["close_price_adj"].rolling(window=b, center=False).mean()
+      df_a = cp.rolling(window=a, center=False).mean()
+      df_b = cp.rolling(window=b, center=False).mean()
 
       df_c = df_a / df_b
       df_d = op(df_c).astype(int)         # 値を1,0にする

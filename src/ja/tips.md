@@ -1,7 +1,9 @@
 # DataFrameの欠損値の補完
 
 ```python
-cpa = data["close_price_adj"].fillna(method='ffill').rolling(window=25, center=False).mean()
+ daily = datas["jp.stock.daily"]
+ cp = daily["close_price_adj"].unstack(level="symbol").fillna(method="ffill")
+ m25 = cp.rolling(window=25, center=False).mean()
 ```
 
 欠損値は、NaN(Not a Number)として設定されています。
